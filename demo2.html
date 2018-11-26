@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8"/>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0">
+  <title>vue的列表绑定</title>
+<style type="text/css">
+body{ font-size:14px;}
+.outFrame{ padding:10px;}
+h1{ background:blue; color:#fff; font-size:16px; padding:10px; font-weight:normal;}
+.dataList{ min-width:300px; float:left; margin:0 20px 20px 0;  border-collapse:collapse; border-spacing:0;}
+.dataList caption{ font-size:16px; padding:5px; color:#333; font-weight:600;}
+.dataList td,.dataList th{ text-align:center; padding:5px; border:1px solid rgba(255,255,255,.8);}
+.dataList th{ color:#fff;}
+.dataList tbody tr:nth-child(even){ background:rgba(255,255,255,.8);}
+.dataList tbody tr:nth-child(odd){ background:rgba(255,255,255,.9);}
+
+.student{ background:#3176dc;}
+.project{ background:#11ab27;}
+.score{ background:#d69016;}
+
+.dialog{ position:absolute; top:0; left:0; bottom:0; right:0; background:rgba(0,0,0,.5); text-align:center;}
+.dialog:before{ content:''; display:inline-block; height:100%; width:0; vertical-align:middle;}
+.dialog h3{ margin:0; padding:10px; font-size:16px; background:#3176dc; color:#fff; position:relative;}
+.dialog h3 .close{ position:absolute; right:10px; top:50%; transform:translateY(-50%); cursor:pointer; line-height:20px; width:20px; text-align:center; border-radius:6px;}
+.dialog h3 .close:hover{ background:#f90;}
+.dialogContent{ display:inline-block; background:#fff; vertical-align:middle; box-shadow:0 0 20px rgba(0,0,0,.3);}
+.contentShow{ padding:10px;}
+.buttonBar{ padding:10px; background:#ddd; border-top:1px dashed #aaa;}
+.tipMessage{ text-align:center; padding:0 10px 10px 10px;} 
+.tipMessage span{ display:inline-block; padding:5px 10px; border:1px solid #ffa200; background-color:#fff3df; color:#ffa200; font-size:12px;}
+input[type='text']{ padding:5px 10px; border:1px solid #ccc; border-radius:6px;}
+
+.dataList2{ min-width:300px; border-collapse:collapse; border-spacing:0; }
+.dataList2 input[type='text']{ width:50px; text-align:center;}
+.dataList2 tr:first-child{ background-color:#d69016; color:#fff;}
+.dataList2 td{ padding:5px 10px; border:1px solid #fff;}
+</style>
+</head>
+<body>
+<div id="app" class="outFrame">
+	<h1>列表绑定</h1>
+	<table class="student dataList">
+		<caption>学生表</caption>
+		<thead>
+			<tr>
+				<th>学号</th>
+				<th>姓名</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr v-for="(item,key) in student">
+				<td>{{item.num}}</td>
+				<td>{{item.name}}</td>
+			</tr>
+		</tbody>
+		<tfoot>
+			<tr>
+				<td colspan="2"><button @click="dialogShow('student')">添加</button></td>
+			</tr>
+		</tfoot>
+	</table>
+	
+	<table class="project dataList">
+		<caption>科目表</caption>
+		<thead>
+			<tr>
+				<th>序号</th>
+				<th>编码</th>
+				<th>科目</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr v-for="(item,key,index) in project">
+				<td>{{index+1}}</td>
+				<td>{{item.id}}</td>
+				<td>{{item.name}}</td>
+			</tr>
+		</tbody>
+		<tfoot>
+			<tr>
+				<td colspan="3"><button @click="dialogShow('project')">添加</button></td>
+			</tr>
+		</tfoot>
+	</table>
+	
+	<table class="score dataList">
+		<caption>成绩表</caption>
+		<thead>
+			<tr>
+				<th>学号</th>
+				<th>姓名</th>
+				<th v-for="item in project">{{item.name}}</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr v-for="item in score">
+				<td>{{item.num}}</td>
+				<td>{{student[item.num].name}}</td>
+				<td v-for="item2 in project">{{item[item2.id]}}</td>
+			</tr>
+		</tbody>
+		<tfoot>
+			<tr>
+				<td :colspan="projectLen+2"><button @click="dialogShow('score')">添加/编辑</button></td>
+			</tr>
+		</tfoot>
+	</table>
+	<div class="dialog" v-if="op">
+		<div class="dialogContent">
+			<h3>{{txtTitle}}<span class="close" @click="dialogHide()">&times;</span></h3>
+			<div class="contentShow" v-if="op=='student'">
+				<input type="text" v-model="input1.num" placeholder="请输入学号" style="width:70px;"/> <input type="text" v-model="input1.name" placeholder="请输入姓名"/>
+			</div>
+			<div class="contentShow" v-if="op=='project'">
+				<input type="text" v-model="input2.id" placeholder="请输入科目编码" style="width:100px;"/> <input type="text" v-model="input2.name" placeholder="请输入科目名称"/>
+			</div>
+			<div class="contentShow" v-if="op=='score'">
+				<table class="dataList2">
+					<tr>
+						<td>学号</td>
+						<td>姓名</td>
+						<td v-for="item in project">{{item.name}}</td>
+					</tr>
+					<tr>
+						<td>
+							<select v-model="input3.num">
+								<option value=""></option>
+								<option :value="item.num" v-for="item in student">{{item.num}}</option>
+							</select>
+						</td>
+						<td>{{input3.name}}</td>
+						<td v-for="item in project"><input type="text" v-model="input3[item.id]"/></td>
+					</tr>
+				</table>
+			</div>
+			<div class="tipMessage" v-if="msg"><span>{{msg}}</span></div>
+			<div class="buttonBar"><button @click="submitData()">提交</button></div>
+		</div>
+	</div>
+</div>
+<script src="js/jquery.min.js"></script>
+<script src="js/vue.min.js"></script>
+<script src="js/rexfunction.js"></script>
+<script>
+var student=[{num:1,name:'张三丰'},{num:2,name:'李四海'},{num:3,name:'王五山'}];  //数据库拿到的学生基本信息格式可能是这样的格式
+var project=[{id:'chinese',name:'语文'},{id:'math',name:'数学'},{id:'english',name:'英语'}];  //数据库拿到的科目基本信息可能是这样的格式
+var score=[{num:1,chinese:98,math:87,english:80},{num:2,chinese:78,math:99,english:82}];  //数据库拿到的成绩数据列表可能是这样的格式
+
+new Vue({
+	el: '#app',
+	data:{
+		student: JSON.array2Object(student,'num'),  //JSON为js默认的JSON原型对象，在rexfunction.js中扩展了该对象的方法（类似于扩展了父类的一个可继承的方法，继承于该父类的子类实例就可以调用这个方法），array2Object的作用是把数组对象结构变换成以某一唯一主键组成的索引结构，比如student的数组，如果原始结构中要按唯一的学号'num'查找某一学生姓名，则需要JS程序中使用循环来遍历，如果更改为索引结构，直接调用就可以获得了 比如student[学号].name
+		project: JSON.array2Object(project,'id'),  //加工释义如上
+		score: score,
+		input1:{   //学生信息编辑
+			num:'',
+			name:''
+		},
+		input2:{
+			id:'',
+			name:''
+		},
+		input3:{
+			num:'',
+			name:''
+		},
+		op:'',
+		msg:''
+	},
+	computed:{ 
+		projectLen: function(){   //获得科目数据的个数
+			var count=0;
+			for(var x in this.project){
+				count++;
+			}
+			return count;
+		},
+		txtTitle: function(){   //显示对话框的标题
+			switch(this.op){
+				case 'student':
+					return '添加学生信息';
+				case 'project':
+					return '添加科目信息';
+				case 'score':
+					return '添加学生科目成绩';
+				default:
+					return '';
+			}
+		},
+		nowScore: function(){ //获得成绩信息
+			
+		}
+	},
+	methods:{ 
+		dialogShow: function(opStr){  //显示添加信息对话框
+			this.op=opStr;
+		},
+		dialogHide: function(){  //隐藏信息添加对话框
+			var cleanData='';
+			switch(this.op){
+				case 'student':
+					cleanData=this.input1;
+					break;
+				case 'project':
+					cleanData=this.input2;
+					break;
+				case 'score':
+					cleanData=this.input3;
+					break;
+			}
+			for (var x in cleanData){
+				cleanData[x]='';
+			}
+			this.op='';
+			this.msg='';
+		},
+		submitData: function(){   //提交添加信息
+			if (this.checker()===false) return;
+			switch(this.op){
+				case 'student':
+					this.student[this.input1.num]={
+						num: this.input1.num,
+						name: this.input1.name
+					};
+					break;
+				case 'project':
+					/*
+					this.project[]={
+						id: this.input2.id,
+						name: this.input2.name
+					}
+					//这种方式虽然在v-for循环中看似能正常更新显示，但对于类似于computed这种与之相关的计算事件则不一定会触发。请务必注意对于对象操作，做值修改一般可能不会有太大问题，但对于结构扩展则某些自动方法不会被触发，如此我们可以用下面的Vue.set方法实现强制更新并触发相关事件
+					*/  
+					Vue.set(this.project,this.input2.id,{id:this.input2.id, name:this.input2.name});  //三个参数 分别是需要修改的data中的对象变量，需要修改某个索引值的名称，修改的值
+					break;
+				case 'score':
+					var key=this.input3.num;
+					var index='';
+					for (var i=0; i<this.score.length; i++){
+						if (key===this.score[i].num) index=i;
+					}
+					if (index===''){
+						var pushObject={};
+						for (var x in this.input3){
+							pushObject[x]=this.input3[x]-0;
+						}
+						this.score.push(pushObject);
+					}else{
+						var pushObject=this.score[index];
+						for (var x in this.input3){
+							if (x==='num') continue;
+							pushObject[x]=this.input3[x];
+						}
+					}
+					break;
+			}
+			this.dialogHide();
+		},
+		checker: function(){  //填写项检查
+			var checkMsg='';
+			switch(this.op){
+				case 'student':
+					var val1=this.input1.num.Trim();
+					var val2=this.input1.name.Trim();
+					if (val1==='' || /^\d+$/.test(val1)===false){
+						checkMsg='请填写学号,并且只能为数字';
+					}else if(val1 in this.student){
+						checkMsg='当前学号已经被使用';
+					}else if(val2===''){
+						checkMsg='请填写学生姓名';
+					}
+					this.msg='';
+					this.input1.num=val1===''? '': parseInt(val1);
+					this.input1.name=val2;
+					break;
+				case 'project':
+					var val1=this.input2.id.Trim();
+					var val2=this.input2.name.Trim();
+					if (val1==='' || /^[a-zA-Z]+$/.test(val1)===false){
+						checkMsg='请填写科目编号，编号只能是英文字符组合';
+					}else if(val1 in this.project){
+						checkMsg='当前编号的科目已经存在';
+					}else if(val2===''){
+						checkMsg='请填写科目的名称';
+					}
+					this.msg='';
+					this.input2.id=val1;
+					this.input2.name=val2;
+					break;
+				case 'score':
+					var val1=this.input3.num;
+					if (val1===''){
+						checkMsg='请先选择一个需要录入成绩的学生学号';
+					}else{
+						var val2='';
+						for (var x in this.project){
+							val2=this.input3[x];
+							if (val2==='' || /^\d+$/.test(val2)===false){
+								checkMsg='请填写学生的'+ this.project[x].name+ '成绩，且确保成绩为数值';
+								break;
+							}
+							this.input3[x]=val2;
+						}
+					}
+					this.msg='';
+					break;
+			}
+			if (checkMsg){
+				this.msg=checkMsg;
+				return false;
+			}
+			return true;
+		},
+		getNowScore: function(num){
+			var result={};
+			for (var x in this.project){
+				result[this.project[x].id]='';
+			}
+			result.name=this.student[num]? this.student[num].name : '';
+			for (var i=0; i<this.score.length; i++){
+				var temp=this.score[i];
+				if (num===temp.num){
+					for (var x in temp){
+						if (x==='num') continue;
+						result[x]=temp[x];
+					}
+				}
+			}
+			return result;
+		}
+	},
+	watch:{ 
+		'input3.num': function(newVal){
+			var result=this.getNowScore(newVal);
+			for(var x in result){
+				this.input3[x]=result[x];
+			}
+			this.input3.num=newVal;
+		}
+	},
+	beforeCreate: function(){
+		
+	},
+	mounted: function(){
+		console.log(this.student); //可以在浏览器的开发者工具console面板中查看该对象的结构,另外请注意，如果放在beforeCreate事件中是无法获得data中的对象的，创建之前对象还没准备好
+	}
+});
+</script>
+</body>
+</html>
+<!-- 
+//----  使用说明  --------------
+1.该例子阐述了v-for在vue框架中的实际作用。不仅可以循环展示普通数组（成绩表），同样也能遍历对象（学生表，科目表），通用可以通过v-for="item in 10"来进行常数的循环
+
+2.通过代码来修改data中的数组或者对象，注意各自的方法，数组可以用push等数组操作方法来添加/删除数组中的元素，以达到界面自响应，如果手工直接绑定，比如a[a.length]=...，可能会导致自响应失效。对象类型的数据更改元素值的情况不会有太大问题，重要的是更改元素结构（包括增加索引或者删除索引）会导致某些自响应失效，可以用Vue的静态方法set来做协调
+-->

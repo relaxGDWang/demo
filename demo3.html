@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8"/>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0">
+  <title>饿了么UI框架 Element</title>
+	<link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+<style type="text/css">
+html,body{ font-size:14px; width:100%; height:100%; padding:0; margin:0;}
+.outFrame{ padding:10px; width:100%; height:100%; box-sizing: border-box;}
+.showFrame{ min-width:400px; max-width:680px; min-height:200px; background:#f90; border:1px solid #ccc;}
+</style>
+</head>
+<body>
+<div id="app" class="outFrame">
+	<div class="showFrame">
+		<template>
+			<el-table
+				:data="tableData3"
+				style="width: 100%"
+				height="250">
+				<el-table-column
+					fixed
+					prop="date"
+					label="日期"
+					width="150">
+				</el-table-column>
+				<el-table-column
+					prop="name"
+					label="姓名"
+					width="120">
+				</el-table-column>
+				<el-table-column
+					prop="province"
+					label="省份"
+					width="120">
+				</el-table-column>
+				<el-table-column
+					prop="city"
+					label="市区"
+					width="120">
+				</el-table-column>
+				<el-table-column
+					prop="address"
+					label="地址"
+					width="300">
+				</el-table-column>
+				<el-table-column
+					prop="zip"
+					label="邮编"
+					width="120">
+				</el-table-column>
+			</el-table>
+		</template>
+	</div>
+</div>
+<script src="js/vue.min.js"></script>
+<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+<script>
+new Vue({
+	el: '#app',
+	data:{
+		tableData3: [{
+			date: '2016-05-03',
+			name: '王小虎',
+			province: '上海',
+			city: '普陀区',
+			address: '上海市普陀区金沙江路 1518 弄',
+			zip: 200333
+		}, {
+			date: '2016-05-02',
+			name: '王小虎',
+			province: '上海',
+			city: '普陀区',
+			address: '上海市普陀区金沙江路 1518 弄',
+			zip: 200333
+		}, {
+			date: '2016-05-04',
+			name: '王小虎',
+			province: '上海',
+			city: '普陀区',
+			address: '上海市普陀区金沙江路 1518 弄',
+			zip: 200333
+		}, {
+			date: '2016-05-01',
+			name: '王小虎',
+			province: '上海',
+			city: '普陀区',
+			address: '上海市普陀区金沙江路 1518 弄',
+			zip: 200333
+		}, {
+			date: '2016-05-08',
+			name: '王小虎',
+			province: '上海',
+			city: '普陀区',
+			address: '上海市普陀区金沙江路 1518 弄',
+			zip: 200333
+		}, {
+			date: '2016-05-06',
+			name: '王小虎',
+			province: '上海',
+			city: '普陀区',
+			address: '上海市普陀区金沙江路 1518 弄',
+			zip: 200333
+		}, {
+			date: '2016-05-07',
+			name: '王小虎',
+			province: '上海',
+			city: '普陀区',
+			address: '上海市普陀区金沙江路 1518 弄',
+			zip: 200333
+		}]
+	}
+});
+</script>
+</body>
+</html>
+<!-- 
+//----  使用说明  --------------
+该页面举Element中的一个表格例子，原先列头行头固定仅在easyui中用过，并且想自行开发而不得要领。Element中实现则感觉比较简单明了
+
+1.使用方法 包含Element对应的CSS样式表，包含Element对应的index.js即可
+
+2.具体控件的使用方法请查看 http://element-cn.eleme.io/#/zh-CN/component/table 寻找自己需要的控件并研究下，关键点在于如何书写调用模板和在其中传递必要的参数
+-->

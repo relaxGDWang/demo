@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8"/>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0">
+  <title>vue的双向绑定与值变动检测</title>
+<style type="text/css">
+.outFrame{ padding:10px; border:1px solid #ccc; width:600px; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);}
+h1{ background:#f90; color:#fff; margin:0 0 20px 0; padding:10px; font-weight:normal;}
+.formRow{ padding:5px 10px; text-align:center;}
+.formRow input{ height:30px; border-radius:6px; border:1px solid #ccc; padding:0 10px;}
+.formRow input.alert{ border:1px solid red; color:red;}
+.formRow button{ height:34px; width:120px; border-radius:6px; border:1px solid #ccc; cursor:pointer;}
+.tipMessage{ padding:10px; text-align:center; font-size:12px;}
+.tipMessage span{ display:inline-block; border:1px solid transparent; padding:5px;}
+.tipMessage.ok span{ border-color:#188C26; background:#B4F0A1; color:#188c26;}
+.tipMessage.alert span{ border-color:red; background:#FFE3C9; color:red;}
+</style>
+</head>
+<body>
+<div id="app" class="outFrame">
+	<h1>用户登录</h1>
+	<div class="formRow">
+		手机号 <input type="text" :class="{alert:msg.obj==='tel'}" placeholder="请填写您的手机号" v-model.number="tel" maxlength="11"/>
+	</div>
+	<div class="formRow">
+		密&emsp;码 <input type="password" :class="{alert:msg.obj==='password'}"  placeholder="请填写登录密码" v-model.trim="password" maxlength="16"/>
+	</div>
+	<div class="tipMessage" :class="{'ok':!msg.obj,'alert':msg.obj}" v-if="msg.str"><span>{{msg.str}}</span></div>
+	<div class="formRow">
+		<button @click="goLogin()">登录</button>
+	</div>
+</div>
+<script src="js/vue.min.js"></script>
+<script>
+var REG={   //正则字典对象
+	tel: {
+		exp: /^\d{11}$/,
+		msg: '请填写11位手机号码'
+	},
+	password: {
+		exp: /^(?!\d+$)(?![a-zA-Z]+$)\w{8,16}$/,
+		msg: '密码是8~16位的数字和字母的组合'
+	}
+};
+var vu=new Vue({  //Vue的new实例给到变量vu,以便在外部作用域中调用vue的data中变量,比如外部需要获得当前data中的tel值，可以使用vu.tel来获取
+	el: '#app',  //Vue的作用范围dom，#app表示id=app的dom元素
+	data:{
+		tel:'',
+		password:'',
+		msg:{  //错误信息提示对象
+			obj:'',   //标记哪个对象填写不规范
+			str:''    //错误的说辞
+		}
+	},
+	computed:{   //计算属性，并不是一种函数/方法，可简单看作一种变量值
+		checker: function(){  //用于检查输入是否规范
+			var checkList=['tel','password'];
+			var key='', valueStr='';
+			for (var i=0; i<checkList.length; i++){
+				key=checkList[i];
+				valueStr=this[key];
+				if (valueStr!=='' && REG[key].exp.test(valueStr)===false){
+					return {obj:key, str:REG[key].msg};
+				}
+			}
+			return '';
+		}
+	},
+	methods:{   //供view层调用的方法，同样在vue的实例对象内部也可以调用，区别在于是否加this
+		goLogin: function(){  //登录提交之前的验证
+			if (this.tel===''){
+				this.setMsg({obj:'tel', str:'请填写您的手机号码'});
+				return;
+			}
+			if (this.password===''){
+				this.setMsg({obj:'password', str:'请填写您的登录密码'});
+				return;
+			}
+			if (this.checker){
+				this.setMsg(this.checker);
+				return;
+			}
+			this.setMsg({obj:'',str:'登录信息通过AJAX提交给后台验证'});  //实际使用中在这里应该是发起ajax
+		},
+		setMsg: function(cfg){
+			if (cfg){
+				this.msg.obj=cfg.obj;
+				this.msg.str=cfg.str;
+			}else{
+				this.msg.obj='';
+				this.msg.str='';
+			}
+		}
+	},
+	watch:{  //对应变量值变更，自动会触发这里的watch对应的方法
+		'tel': function(newVal){
+			if (this.msg.obj==='tel' || this.msg.obj==='') this.setMsg();
+		},
+		'password': function(newVal){
+			if (this.msg.obj==='password' || this.msg.obj==='') this.setMsg();
+		}
+	},
+	beforeCreate: function(){
+		console.log('整体创建之前的事件');
+	},
+	mounted: function () {
+		console.log('似乎是初始变量和事件准备好之后会触发，从字面意思为"挂载"');
+	}
+});
+</script>
+</body>
+</html>
+<!-- 
+//----  使用说明  --------------
+纯粹基于vue实现了一个前端的登录页面，包含了验证和提示信息的展示
+要点
+1.Vue的使用，把对应的js包含进来后，按以上的结构书写即可，主要最外层的id=app的dom元素，且这个外框元素不能用于body，否则会有问题，其他书写结构可以拷贝之，data为必要，毕竟不管什么页面都需要有数据，没有数据而用vue则没有意义了。methods表示可调用的方法，computed表示计算属性，多次调用的时候不用担心其效率，他会按其中用到的data变量值进行结果缓存，只有当相关data值变更后才会自动计算。其他vue的构建事件请参考文档中的图片vue声明周期.png，并结合网络资料以了解vue声明周期中各个步骤会触发的事件先后。
+
+2.v-model属性用于双向绑定data中的变量，所谓双向绑定就是指输入变更值或者js代码变更值都会实时同步到另一端。比如输入框双向绑定了tel变量，在代码中更改tel，输入框的显示值会自动按当前的tel显示（不需要你再额外写对应代码，是的，是自动完成），同样，我手工改变输入框中的值，代码中的tel变量也会自动变换为我输入的值。所以v-model属性一般用于可输入的表单控件中，比如select标签，textarea标签，input标签对应的多选，单选等等。
+
+3..number用于扩展v-model的输入限定，用于限定为数值输入，实现中该特性似乎有点问题。 .trim用于去除输入变量的两端空格，这个可以正常作用
+
+4.注意登录按钮的@click，该属性赋值的就是methods中的某个具体方法，可以在调用括号中书写传递给该方法的参数,比如 @click="doSomething($event)"，这里的$event代表js的事件对象e,在方法声明对应位置安排一个变量名来接收该传参，即可在方法内部使用事件变量e，甚至于操作dom元素--e.target
+-->

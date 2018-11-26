@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8"/>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0">
+  <title>relax的ajax类 基于jquery</title>
+<style type="text/css">
+//css reset
+*, *:after, *:before { box-sizing: border-box; }
+html, body, h1, h2, h3, h4, h5, h6, dl, dt, dd, p, ul, li, form, iframe, object { margin: 0; padding: 0; }
+a { text-decoration: none; color: inherit; -webkit-tap-highlight-color: transparent; }
+input, textarea, select, button, option { font-family: inherit; font-size: inherit; color: inherit; -webkit-tap-highlight-color: transparent; }
+a:active, a:focus, input:active, input:focus, button:active, button:focus { outline: none; }
+input[type="button"]::-moz-focus-inner, input[type="submit"]::-moz-focus-inner, button::-moz-focus-inner { border: none; }
+table { border-collapse: collapse; border-spacing: 0; width: 100%; }
+html, body { height: 100%; width: 100%; overflow: hidden; color: #333; font-family: Arial, Helvetica, sans-serif; }
+html { font-size: 10px; }
+body { font-size: 14px; }
+iframe { display: block; width: 100%; height: 100%; position: relative; border: 0;}
+
+
+</style>
+</head>
+<body>
+<div id="app" class="outFrame">
+	<button @click="getBase()">基本调用</button>
+</div>
+<script src="js/jquery.min.js"></script>
+<script src="js/vue.min.js"></script>
+<script src="js/rexfunction.js"></script>
+<script src="js/rexajax2.js"></script>
+<script>
+var vu=new Vue({
+	el: '#app',
+	data:{
+	},
+	methods:{
+		getBase: function(){
+			ajax.send();
+		}
+	}
+});
+
+var ajax=relaxAJAX({
+	url: 'server/base.json',
+	error: function(code,msg){
+		alert(code+' '+msg);
+	},
+	success: function(data){
+		alert(data);
+	}
+});
+
+</script>
+</body>
+</html>
+<!-- 
+//----  使用说明  --------------
+该页面举Element中的一个表格例子，原先列头行头固定仅在easyui中用过，并且想自行开发而不得要领。Element中实现则感觉比较简单明了
+
+1.使用方法 包含Element对应的CSS样式表，包含Element对应的index.js即可
+
+2.具体控件的使用方法请查看 http://element-cn.eleme.io/#/zh-CN/component/table 寻找自己需要的控件并研究下，关键点在于如何书写调用模板和在其中传递必要的参数
+-->
